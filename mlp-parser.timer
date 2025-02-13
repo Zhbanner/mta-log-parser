@@ -1,0 +1,11 @@
+# https://www.freedesktop.org/software/systemd/man/systemd.timer.html
+# https://www.freedesktop.org/software/systemd/man/systemd.time.html
+[Unit]
+Description=Run MPL Parser
+
+[Timer]
+OnCalendar=*-*-* *:*:14
+
+[Install]
+WantedBy=timers.target
+

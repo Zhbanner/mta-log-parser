@@ -4,7 +4,6 @@ venv/
 *.txt
 Dockerfile
 *.bak
-*.service
 *.yaml
 *.JPG
 build
