@@ -33,6 +33,10 @@ class PostfixLog(Dictable):
     def __str__(self):
         return self.__repr__()
 
+    # Make date one year lower. Fix for postfix log date format
+    def year_minus(self):
+        self.timestamp = self.timestamp.replace(year=self.timestamp.year-1)
+
     def clean_dict(self, convert_time=str) -> dict:
         data = dict(self)
         # log lines timestamp convert before append (for message related log view)
@@ -90,6 +94,12 @@ class PostfixMessage(Dictable):
         for k, v in dicdata.items():
             if hasattr(self, k):
                 setattr(self, k, v)
+
+    # Make date one year lower. Fix for postfix log date format
+    def year_minus(self):
+        self.timestamp = self.timestamp.replace(year=self.timestamp.year-1)
+        for line in self.lines:
+            line.year_minus()
 
     def clean_dict(self, convert_time=str) -> dict:
         data = dict(self)

@@ -170,6 +170,7 @@ async def import_log(logfile: str) -> Dict[str, PostfixMessage]:
     
     counter = 0
     same_qid = ''
+    prev_dtime = None
     # avoid utf-8 codec error
     with open(logfile, 'rb') as f:
         while True:
@@ -199,6 +200,19 @@ async def import_log(logfile: str) -> Dict[str, PostfixMessage]:
             
             dtime = moment.date(dtime,settings.datetime_format).date
             dtime = dtime.replace(tzinfo=timezone.utc)
+
+            # If date is going backwards (like it changes from Dec to Jan)
+            # we change year to -1 for all messages dates
+            # It needs for proper postfix log handling,
+            # where dates are without year, like "Feb 13 10:50:55 ..."
+            if settings.mta == 'postfix':
+                if not prev_dtime:
+                    prev_dtime = dtime
+                if (dtime < prev_dtime - timedelta(days=30)):
+                    log.info(f"Changing year: {prev_dtime} -> {dtime}")
+                    for mkey in messages:
+                        messages[mkey].year_minus()
+                prev_dtime = dtime
 
             if settings.mta == 'exchange':
                 msg, qid  = m.groups()
